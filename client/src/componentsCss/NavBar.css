@@ -1,0 +1,47 @@
+.Nav {
+  height: 3em;
+  background-color: #fdfdfd;
+  color: #282828;
+  border-bottom: 1px #e0e0e0 solid;
+  box-sizing: border-box;
+}
+
+.Nav-container {
+  height: 100%;
+  margin: 0 auto;
+  max-width: 60em;
+}
+
+.Nav-title {
+  float: left;
+  text-align: left;
+  padding: 0em 1em;
+  height: 100%;
+  line-height: 2em;
+  background-color: #333;
+  color: #fdfdfd;
+  border-right: 1px #e0e0e0 solid;
+}
+
+.Nav-signout {
+  float: right;
+  margin-top: 0.25em;
+  padding: 0.3em 0.6em;
+  background-color: #fdfdfd;
+  color: #555;
+  border: 1px #ddd solid;
+  border-radius: 2px;
+}
+
+.Nav-signout:hover {
+  cursor: pointer;
+  background-color:#57adfd;
+  color: #fdfdfd;
+  border: 1px #57adfd solid;
+}
+
+@media screen and (max-width: 975px) {
+  .Nav-signout {
+    margin-right: 0.4em;
+  }
+}

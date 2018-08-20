@@ -1,0 +1,31 @@
+.Content {
+  min-height: 100%;
+  margin: 0 auto;
+  margin-top: -3em;
+  margin-bottom: -2.5em;
+  max-width: 60em;
+  font-size: 1em;
+}
+
+.Content::after {
+  content: "";
+  display: block;
+  height: 2em;
+}
+
+.Content-top {
+  height: 3em;
+  display: block;
+}
+
+@media screen and (max-width: 1000px) {
+  .Content {
+    padding: 0em 0.5em;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .Content {
+    margin-bottom: -4em;
+  }
+}

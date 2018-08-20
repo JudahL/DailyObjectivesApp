@@ -1,0 +1,27 @@
+.Home-status {
+  display: inline-block;
+  width: 30%;
+  margin-right: 2%;
+  vertical-align: top;
+}
+
+.Home-objectives {
+  display: inline-block;
+  width: 68%;
+}
+
+@media screen and (max-width: 1000px) {
+  .Home-status {
+    width: 31%;
+    margin-right: 1%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .Home-objectives {
+    width: 100%;
+  }
+  .Home-status {
+    width: 100%;
+  }
+}
