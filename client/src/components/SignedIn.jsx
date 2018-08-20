@@ -7,7 +7,7 @@ import Modal from './Modal';
 import Home from './Home';
 
 class SignedIn extends PureComponent {
-  componentWillMount() {
+  componentDidMount() {
     this.props.getObjectives();
   }
 

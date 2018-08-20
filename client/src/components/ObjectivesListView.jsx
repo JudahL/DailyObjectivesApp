@@ -14,6 +14,7 @@ class ObjectivesListView extends PureComponent {
       removeObjective: removeObjectiveFunc,
       turnOnModal: turnOnModalFunc,
       selectObjective: selectObjectiveFunc,
+      loadingIndex
     } = this.props;
 
     return objectives.map((objective, index) => (
@@ -28,6 +29,7 @@ class ObjectivesListView extends PureComponent {
         removeObjective={removeObjectiveFunc}
         turnOnModal={turnOnModalFunc}
         selectObjective={selectObjectiveFunc}
+        loading={loadingIndex === index}
       />
     ));
   }
@@ -39,11 +41,13 @@ ObjectivesListView.propTypes = {
   removeObjective: PropTypes.func.isRequired,
   selectObjective: PropTypes.func.isRequired,
   turnOnModal: PropTypes.func.isRequired,
+  loadingIndex: PropTypes.number.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     objectives: state.getIn(['objectives', 'list']),
+    loadingIndex: state.getIn(['loader', 'markObjectiveLoadingIndex']),
   };
 }
 

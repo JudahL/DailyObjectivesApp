@@ -76,6 +76,7 @@ router.get('/get', (req, res, next) => {
 });
 
 
+//Create and return a new error given a specified error message and http status
 function userError(message, status) {
   const err = new Error(message);
   err.status = status;

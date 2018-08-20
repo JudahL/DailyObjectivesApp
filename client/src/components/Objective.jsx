@@ -53,8 +53,11 @@ class Objective extends PureComponent {
             {text}
           </h3>
           <div className="Objective-completed-container">
-            <button type="button" className="Objective-completed-button" onClick={this.handleToggleCompleted}>
-              <div className="Objective-completed-check" colour={isChecked ? colour : 'lightGrey'} />
+            <button type="button" className="Objective-completed-button" onClick={this.handleToggleCompleted} disabled={this.props.loading}>
+              {this.props.loading
+                ? <div className="Loader" bordercolour={colour} loadertype="Objective" />
+                : <div className="Objective-completed-check" colour={isChecked ? colour : 'lightGrey'} />
+              }
             </button>
           </div>
         </div>
@@ -73,6 +76,7 @@ Objective.propTypes = {
   removeObjective: PropTypes.func.isRequired,
   selectObjective: PropTypes.func.isRequired,
   turnOnModal: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default Objective;

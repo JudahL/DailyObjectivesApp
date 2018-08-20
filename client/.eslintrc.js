@@ -1,12 +1,6 @@
 module.exports = {
-    "extends": "airbnb",
-    "plugins": ["react"],
-    "parser": "babel-eslint",
+    "extends": ["react-app", "plugin:jsx-a11y/recommended"],
+    "plugins": ["jsx-a11y"],
     "rules": {
-        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-        "linebreak-style": ["error", "windows"]
-    },
-    "env": {
-        "browser": true
     }
 };

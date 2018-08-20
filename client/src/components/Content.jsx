@@ -7,7 +7,7 @@ import SignedOut from './SignedOut';
 import '../componentsCss/Content.css';
 
 class Content extends Component {
-  componentWillMount() {
+  componentDidMount() {
     this.props.getUser();
   }
 

@@ -6,6 +6,7 @@ import {
   UPDATE_OBJECTIVE,
   SELECT_OBJECTIVE,
 } from './types/objectivesActionTypes';
+import { setLoadingMarkObjective, setLoadingFalse } from './loadingActions';
 
 export const getObjectives = () => (dispatch) => {
   axios
@@ -36,6 +37,7 @@ export const removeObjective = objectiveId => (dispatch) => {
 };
 
 export const markObjective = (objectiveIndex, objectiveId, value) => (dispatch) => {
+  dispatch(setLoadingMarkObjective(objectiveIndex))
   const data = { isChecked: value };
   axios
     .put(`/api/objectives/${objectiveId}`, data)
@@ -43,7 +45,8 @@ export const markObjective = (objectiveIndex, objectiveId, value) => (dispatch) 
       type: UPDATE_OBJECTIVE,
       objectiveIndex,
       payload: res.data,
-    }));
+    }))
+    .then(() => dispatch(setLoadingFalse()));
 };
 
 export const updateObjective = (objectiveIndex, objectiveId, data) => (dispatch) => {

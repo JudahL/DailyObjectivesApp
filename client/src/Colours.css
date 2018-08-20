@@ -1,3 +1,6 @@
+/**
+  * Background Colours
+  */
 [colour=purple] {
   background-color: #8c53c6;
 }
@@ -16,4 +19,27 @@
 
 [colour=lightGrey] {
   background-color: #eee;
+}
+
+/**
+  * Border Colours
+  */
+[bordercolour=purple] {
+  border-color: #8c53c6;
+}
+
+[bordercolour=orange] {
+  border-color: #d87b46;
+}
+
+[bordercolour=green] {
+  border-color: #57c653;
+}
+
+[bordercolour=teal] {
+  border-color: #53c6a9;
+}
+
+[bordercolour=lightGrey] {
+  border-color: #eee;
 }

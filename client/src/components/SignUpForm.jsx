@@ -59,8 +59,11 @@ class SignUpForm extends PureComponent {
           <SignInError errorMessage={passwordError} />
 
           {/* Register Button */}
-          <button className="SignInForm-button" type="submit">
-            Register
+          <button className="SignInForm-button" type="submit" disabled={this.props.loading}>
+            {this.props.loading
+              ? <div className="Loader" loadertype="SignIn" />
+              : 'Register'
+            }
           </button>
         </form>
         <div className="SignInForm-option-container">
@@ -81,6 +84,7 @@ SignUpForm.propTypes = {
   usernameError: PropTypes.string.isRequired,
   passwordError: PropTypes.string.isRequired,
   fieldError: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -89,6 +93,7 @@ function mapStateToProps(state) {
     usernameError: state.getIn(['errors', 'user', 'username']),
     passwordError: state.getIn(['errors', 'user', 'password']),
     fieldError: state.getIn(['errors', 'user', 'field']),
+    loading: state.getIn(['loader', 'signInLoading']),
   };
 }
 

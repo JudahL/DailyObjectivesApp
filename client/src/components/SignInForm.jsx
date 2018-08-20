@@ -5,6 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { signIn, clearUserErrors } from '../actions/userActions';
 import SignInError from './SignInError';
 import '../componentsCss/SignInForm.css';
+import '../componentsCss/Loader.css';
 
 class SignInForm extends PureComponent {
   constructor() {
@@ -51,8 +52,11 @@ class SignInForm extends PureComponent {
           <SignInError errorMessage={passwordError} />
 
           {/* Sign In Button */}
-          <button className="SignInForm-button" type="submit">
-            Sign In
+          <button className="SignInForm-button" type="submit" disabled={this.props.loading}>
+            {this.props.loading
+              ? <div className="Loader" loadertype="SignIn" />
+              : 'Sign In'
+            }
           </button>
         </form>
         <div className="SignInForm-option-container">
@@ -73,6 +77,7 @@ SignInForm.propTypes = {
   usernameError: PropTypes.string.isRequired,
   passwordError: PropTypes.string.isRequired,
   fieldError: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -81,6 +86,7 @@ function mapStateToProps(state) {
     usernameError: state.getIn(['errors', 'user', 'username']),
     passwordError: state.getIn(['errors', 'user', 'password']),
     fieldError: state.getIn(['errors', 'user', 'field']),
+    loading: state.getIn(['loader', 'signInLoading']),
   };
 }
 

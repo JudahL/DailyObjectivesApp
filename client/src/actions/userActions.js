@@ -7,6 +7,7 @@ import {
   USER_ERROR,
   CLEAR_USER_ERRORS,
 } from './types/userActionTypes';
+import { setLoadingSignIn, setLoadingFalse } from './loadingActions';
 
 export function clearUserErrors() {
   return {
@@ -28,12 +29,14 @@ export const addUser = user => (dispatch) => {
 };
 
 export const signIn = userDetails => (dispatch) => {
+  dispatch(setLoadingSignIn());
   axios
     .post('/api/users/signin', userDetails)
     .then(res => dispatch({
       type: SIGN_IN,
       payload: res.data,
     }))
+    .then(() => dispatch(setLoadingFalse()))
     .catch(error => dispatch({
       type: USER_ERROR,
       payload: error.response.data,

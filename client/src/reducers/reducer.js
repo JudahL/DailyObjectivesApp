@@ -3,6 +3,7 @@ import objectivesReducer from './objectivesReducer';
 import userReducer from './userReducer';
 import errorsReducer from './errorsReducer';
 import modalReducer from './modalReducer';
+import loadingReducer from './loadingReducer';
 
 const INITIAL_USER_ERRORS_STATE = Map({
   username: '',
@@ -20,6 +21,10 @@ const INITIAL_STATE = Map({
     isDisplayingModal: false,
     type: '',
   }),
+  loader: Map({
+    signInLoading: false,
+    markObjectiveLoadingIndex: -1,
+  }),
   errors: Map({
     user: INITIAL_USER_ERRORS_STATE,
   }),
@@ -29,6 +34,7 @@ const reducers = Map({
   objectives: objectivesReducer,
   user: userReducer,
   modal: modalReducer,
+  loader: loadingReducer,
   errors: errorsReducer,
 });
 
