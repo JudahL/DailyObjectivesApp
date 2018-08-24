@@ -4,29 +4,31 @@ const User = require('../../models/User');
 
 const router = express.Router();
 
-function getUser(userId, next) {
+function getUser(userId) {
   return User.findById(userId)
     .exec()
     .then(user => {
       if (user !== null) {
         return { user: user.username };
       } else {
-        handleNotFound('user', next);
+        throw new handleNotFound('user');
       }
     })
 }
 
-function handleNotFound(type, next) {
+function handleNotFound(type) {
   const error = new Error(type + ' not found.');
   error.status = 404;
-  next(error);
+  return error;
 }
 
 /**
  * '/api/objectives' routes:
  */
 router.get('/', (req, res, next) => {
-  getUser(req.session.userId, next)
+  if (!req.session.userId) return next(handleNotFound('Session'));
+
+  getUser(req.session.userId)
     .then(user => {
       ObjectivesList.findOne(user)
         .exec()
@@ -39,12 +41,14 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  getUser(req.session.userId, next)
+  if (!req.session.userId) return next(handleNotFound('Session'));
+
+  getUser(req.session.userId)
     .then(user => {
       ObjectivesList.findOne(user)
         .exec()
         .then(userObjectives => {
-          if (userObjectives === null) {
+          if (!userObjectives) {
             // return a new objectives list with the user's details
             // objectives array will be empty by default
             return new ObjectivesList(user);
@@ -53,6 +57,8 @@ router.post('/', (req, res, next) => {
           }
         })
         .then(userObs => {
+          if (!userObs) throw new handleNotFound('UserObjectives');
+
           const newObjective = {
             text: req.body.text,
             colour: req.body.colour,
@@ -73,22 +79,26 @@ function addObjective(userObjectives, newObjective) {
 }
 
 router.put('/:id', (req, res, next) => {
-  if (!req.session) return next(new Error('Session not found.'));
-  getUser(req.session.userId, next)
+  //if (!req.session.userId) return next(handleNotFound('Session'));
+
+  getUser(req.session.userId)
     .then(user => {
       return ObjectivesList.findOne(user)
         .exec()
         .then(userObjectives => {
-          if (userObjectives === null) return handleNotFound('Objective', next);
-
           return userObjectives;
         })
         .catch(err => next(err));
     })
     .then(userObjectives => {
-      userObjectives.objectives.id(req.params.id).set(req.body);
-      userObjectives.objectives.id(req.params.id).set({ lastModifiedDate: Date.now() });
-      userObjectives.objectives.id(req.params.id).markModified('lastModifiedDate');
+      if (!userObjectives) throw new handleNotFound('ObjectivesList');
+
+      const objective = userObjectives.objectives.id(req.params.id);
+
+      objective.set(req.body);
+      objective.set({ lastModifiedDate: Date.now() });
+      objective.markModified('lastModifiedDate');
+
       userObjectives.save(err => {
         if (err) {
           return next(err);
@@ -101,16 +111,19 @@ router.put('/:id', (req, res, next) => {
 });
 
 router.delete('/:id', (req, res, next) => {
-  getUser(req.session.userId, next)
+  if (!req.session.userId) return next(handleNotFound('Session'));
+
+  getUser(req.session.userId)
     .then(user => {
       ObjectivesList.findOne(user)
         .exec((err, userObjectives) => {
           if (err) {
             return next(err);
           } else {
-            if (userObjectives === null) return handleNotFound('Objective', next);
+            if (!userObjectives) throw new handleNotFound('Objective');
 
             userObjectives.objectives.id(req.params.id).remove();
+
             userObjectives.save(err => {
               if (err) {
                 return next(err);

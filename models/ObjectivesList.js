@@ -20,6 +20,8 @@ const ObjectivesListSchema = new Schema({
  * If it is then reset the objective to be unchecked before returning it to the client.
  */
 ObjectivesListSchema.post('findOne', result => {
+  if (!result) return;
+
   //Set up the current days reset point
   var currentDate = new Date();
   if (currentDate.getHours() < 4) {

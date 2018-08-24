@@ -38,7 +38,7 @@ app.use(expressSession({
  * API routes
  */
 app.use('/api/users', users);
-app.use('/api/objectives', objectives)
+app.use('/api/objectives', objectives);
 
 /**
  * Serve static assets
@@ -58,6 +58,7 @@ app.use((err, req, res, next) => {
   console.log(err);
   res.status(err.status || 500);
   res.json(err.message);
+  return err;
 });
 
 /**
