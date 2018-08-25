@@ -4,6 +4,11 @@ const User = require('../../models/User');
 
 const router = express.Router();
 
+/**
+ * Queries the database for a User with the given id
+ * If the user is found return it to the next .then handler
+ * If the user is not found then throw a 404 error
+ */
 function getUser(userId) {
   return User.findById(userId)
     .exec()
@@ -16,7 +21,8 @@ function getUser(userId) {
     })
 }
 
-function handleNotFound(type) {
+//Creates and returns a new 404 Not Found error with  
+function notFound(type) {
   const error = new Error(type + ' not found.');
   error.status = 404;
   return error;
@@ -26,7 +32,7 @@ function handleNotFound(type) {
  * '/api/objectives' routes:
  */
 router.get('/', (req, res, next) => {
-  if (!req.session.userId) return next(handleNotFound('Session'));
+  if (!req.session.userId) return next(notFound('Session'));
 
   getUser(req.session.userId)
     .then(user => {
@@ -41,7 +47,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  if (!req.session.userId) return next(handleNotFound('Session'));
+  if (!req.session.userId) return next(notFound('Session'));
 
   getUser(req.session.userId)
     .then(user => {
@@ -57,20 +63,31 @@ router.post('/', (req, res, next) => {
           }
         })
         .then(userObs => {
-          if (!userObs) throw new handleNotFound('UserObjectives');
+          if (!userObs) throw new notFound('UserObjectives');
 
-          const newObjective = {
-            text: req.body.text,
-            colour: req.body.colour,
-            isChecked: req.body.isChecked,
-            lastModifiedDate: Date.now(),
-          }
+          const newObjective = createAndReturnNewObjective(req.body);
 
           return res.json(addObjective(userObs, newObjective));
         })
         .catch(err => next(err));
     });
 });
+
+function createAndReturnNewObjective(objectiveDetails) {
+  //Ensure the request has provided all the required info
+  if (objectiveDetails.text && objectiveDetails.colour) {
+    const newObjective = {
+      text: objectiveDetails.text,
+      colour: objectiveDetails.colour,
+      isChecked: objectiveDetails.isChecked || false,
+      lastModifiedDate: Date.now(),
+    }
+
+    return newObjective;
+  } else {
+    return null;
+  }
+}
 
 function addObjective(userObjectives, newObjective) {
   const numberOfObjectives = userObjectives.objectives.push(newObjective);
@@ -79,7 +96,7 @@ function addObjective(userObjectives, newObjective) {
 }
 
 router.put('/:id', (req, res, next) => {
-  //if (!req.session.userId) return next(handleNotFound('Session'));
+  if (!req.session.userId) return next(notFound('Session'));
 
   getUser(req.session.userId)
     .then(user => {
@@ -91,19 +108,22 @@ router.put('/:id', (req, res, next) => {
         .catch(err => next(err));
     })
     .then(userObjectives => {
-      if (!userObjectives) throw new handleNotFound('ObjectivesList');
+      if (!userObjectives) throw new notFound('User Objectives');
 
       const objective = userObjectives.objectives.id(req.params.id);
 
       objective.set(req.body);
       objective.set({ lastModifiedDate: Date.now() });
+
+      // Explicitly telling mongoose that the property lastModifiedDate has been modified
+      // as Date methods aren't hooked into the mongoose change tracking logic
       objective.markModified('lastModifiedDate');
 
       userObjectives.save(err => {
-        if (err) {
-          return next(err);
+        if (!err) {
+          res.json(objective);
         } else {
-          return res.json(userObjectives.objectives.id(req.params.id));
+          next(err);
         }
       });
     })
@@ -111,28 +131,26 @@ router.put('/:id', (req, res, next) => {
 });
 
 router.delete('/:id', (req, res, next) => {
-  if (!req.session.userId) return next(handleNotFound('Session'));
+  if (!req.session.userId) return next(notFound('Session'));
 
   getUser(req.session.userId)
     .then(user => {
       ObjectivesList.findOne(user)
-        .exec((err, userObjectives) => {
-          if (err) {
-            return next(err);
-          } else {
-            if (!userObjectives) throw new handleNotFound('Objective');
+        .exec()
+        .then(userObjectives => {
+          if (!userObjectives) throw new notFound('Objective');
 
-            userObjectives.objectives.id(req.params.id).remove();
+          userObjectives.objectives.id(req.params.id).remove();
 
-            userObjectives.save(err => {
-              if (err) {
-                return next(err);
-              } else {
-                return res.send('success');
-              }
-            });
-          }
-        });
+          userObjectives.save(err => {
+            if (!err) {
+              res.send('success');
+            } else {
+              next(err);
+            }
+          });
+        })
+        .catch(err => next(err));
     })
     .catch(err => next(err));
 })

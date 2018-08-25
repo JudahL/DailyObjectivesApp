@@ -7,35 +7,36 @@ const router = express.Router();
  * '/api/users' routes:
  */
 router.post('/register', (req, res, next) => {
-  if (req.body.username && req.body.password && req.body.passwordConfirm) {
 
-    // Ensure the user has entered the same 'password' and 'confirm password'
-    if (req.body.password !== req.body.passwordConfirm) {
-      return next(userError('PasswordsDoNotMatch', 400));
-    }
-
-    const newUser = {
-      username: req.body.username,
-      password: req.body.password
-    }
-
-    // Add a new user to the database
-    User.create(newUser, (err, user) => {
-      if (err) {
-        const error = new Error(err.code.toString());
-        return next(error);
-      } else {
-        return res.json(user.username);
-      }
-    });
-  } else {
-    //If all fields aren't supplied then return an error
+  //If all fields aren't supplied then return an error
+  if (!req.body.username && !req.body.password && !req.body.passwordConfirm) {
     return next(userError('FieldsMustBeFilled', 400));
   }
+
+  // Ensure the user has entered the same 'password' and 'confirm password'
+  if (req.body.password !== req.body.passwordConfirm) {
+    return next(userError('PasswordsDoNotMatch', 400));
+  }
+
+  const newUser = {
+    username: req.body.username,
+    password: req.body.password
+  }
+
+  // Add a new user to the database
+  User.create(newUser, (err, user) => {
+    if (err) {
+      const error = new Error(err.code.toString());
+      return next(error);
+    } else {
+      return res.json(user.username);
+    }
+  });
 });
 
 router.post('/signin', (req, res, next) => {
   if (req.body.username && req.body.password) {
+    // Ensure the username and password the user has entered corresponds to a user on the database
     User.authenticate(req.body.username, req.body.password, (error, user) => {
       if (error || !user) {
         return next(userError('WrongUsernameOrPassword', 401));
