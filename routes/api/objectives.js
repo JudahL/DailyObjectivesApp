@@ -11,10 +11,9 @@ module.exports = router;
  */
 
 router.get('/', (req, res, next) => {
-  if (!req.session.userId) return next(notFound('Session'));
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUser(req.session.userId)
-    .then(getObjectivesList)
+  getUserObjectivesWithUserId(req.session.userId)
     .then(objectives => {
       return res.json(objectives);
     })
@@ -22,10 +21,9 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  if (!req.session.userId) return next(notFound('Session'));
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUser(req.session.userId)
-    .then(getObjectivesList)
+  getUserObjectivesWithUserId(req.session.userId)
     .then(userObjectives => {
       if (!userObjectives) {
         // return a new objectives list with the user's details
@@ -36,7 +34,7 @@ router.post('/', (req, res, next) => {
       }
     })
     .then(userObs => {
-      if (!userObs) throw new notFound('UserObjectives');
+      if (!userObs) throw new notFoundError('UserObjectives');
 
       const newObjective = createAndReturnNewObjective(req.body);
 
@@ -46,12 +44,11 @@ router.post('/', (req, res, next) => {
 });
 
 router.put('/:id', (req, res, next) => {
-  if (!req.session.userId) return next(notFound('Session'));
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUser(req.session.userId)
-    .then(getObjectivesList)
+  getUserObjectivesWithUserId(req.session.userId)
     .then(userObjectives => {
-      if (!userObjectives) throw new notFound('User Objectives');
+      if (!userObjectives) throw new notFoundError('User Objectives');
 
       const objective = userObjectives.objectives.id(req.params.id);
 
@@ -74,34 +71,38 @@ router.put('/:id', (req, res, next) => {
 });
 
 router.delete('/:id', (req, res, next) => {
-  if (!req.session.userId) return next(notFound('Session'));
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUser(req.session.userId)
-    .then(getObjectivesList)
+  getUserObjectivesWithUserId(req.session.userId)
     .then(userObjectives => {
-      if (!userObjectives) throw new notFound('User Objectives');
+      if (!userObjectives) throw new notFoundError('User Objectives');
 
-      userObjectives.objectives.id(req.params.id).remove();
+      const objective = userObjectives.objectives.id(req.params.id);
 
-      userObjectives.save(err => {
-        if (!err) {
-          res.send('success');
-        } else {
-          next(err);
-        }
-      });
+      if (objective) {
+        objective.remove();
+
+        userObjectives.save(err => {
+          if (!err) {
+            res.send('success');
+          } else {
+            next(err);
+          }
+        });
+      } else {
+        throw new notFoundError('Objective');
+      }
     })
     .catch(err => next(err));
 });
 
 
 /**
- * Query helper methods:
+ * Query functions:
+ * All of these return a promise with the query result as a parameter
  */
 
-// Queries the database for a User with the given id
-// If the user is found return it to the next .then handler
-// If the user is not found then throw a 404 error
+// Queries the database for a User with the given id and either returns the user's username or throws a 404 error
 function getUser(userId) {
   return User.findById(userId)
     .exec()
@@ -114,13 +115,21 @@ function getUser(userId) {
     })
 }
 
-function getObjectivesList(user) {
+// Queries for a users Objectives List based on the users username
+function getUserObjectivesWithUsername(user) {
   return ObjectivesList.findOne(user)
     .exec();
 }
 
+// Queries for a users Objectives List based on the users userId
+function getUserObjectivesWithUserId(userId) {
+  return getUser(userId)
+    .then(getUserObjectivesWithUsername);
+}
+
+
 /** 
- * Helper methods:
+ * Objective functions:
  */
 
 function createAndReturnNewObjective(objectiveDetails) {
@@ -145,12 +154,13 @@ function addObjective(userObjectives, newObjective) {
   return userObjectives.objectives[numberOfObjectives - 1];
 }
 
+
 /**
- * Error creator methods:
+ * Error creator functions:
  */
 
 //Creates and returns a new 404 Not Found error
-function notFound(type) {
+function notFoundError(type) {
   const error = new Error(type + ' not found.');
   error.status = 404;
   return error;
