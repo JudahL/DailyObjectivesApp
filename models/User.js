@@ -24,23 +24,20 @@ UserSchema.statics.authenticate = (username, password, callback) => {
   User.findOne({ username: username })
     .exec()
     .then(user => {
-      // If no user was found with the given username, send an error to the callback
       if (!user) {
         const err = new Error('User not found.');
         err.status = 401;
         return callback(err);
       }
 
-      //Compare the provided password with the stored password
-      bcrypt.compare(password, user.password, (err, result) => {
-        if (result === true) {
-          // The passwords match, therefore the authentication is successful
-          // Supply the callback with the user and no errors
+      // Compare the provided password with the stored and hashed password
+      bcrypt.compare(password, user.password, (err, passwordsMatch) => {
+        if (passwordsMatch === true) {
           return callback(null, user);
         } else if (err) {
           return callback(err);
         }
-        // The passwords don't match and no errors were thrown
+        // The passwords don't match and there were no errors so don't supply any parameters to the callback
         callback();
       });
     })
@@ -48,8 +45,8 @@ UserSchema.statics.authenticate = (username, password, callback) => {
 }
 
 /**
- * Hash password before saving to MongoDB
- * Important to use standard function as parameter instead of arrow function due to lexical this
+ * Hash password using bcrypt before saving to MongoDB
+ * Important to use standard function syntax as parameter instead of arrow function due to lexical this
  */
 UserSchema.pre('save', function (next) {
   const user = this;
