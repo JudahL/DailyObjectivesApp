@@ -7,12 +7,6 @@
   font-size: 1em;
 }
 
-.Content::after {
-  content: "";
-  display: block;
-  height: 2em;
-}
-
 .Content-top {
   height: 3em;
   display: block;

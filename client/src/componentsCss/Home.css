@@ -10,6 +10,12 @@
   width: 68%;
 }
 
+.Home-objectives:after {
+  content: "";
+  display: block;
+  height: 2em;
+}
+
 @media screen and (max-width: 1000px) {
   .Home-status {
     width: 31%;
