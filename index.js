@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const expressSession = require('express-session');
 const MongoStore = require('connect-mongo')(expressSession);
+const config = require('./config/config');
 const users = require('./routes/api/users');
 const objectives = require('./routes/api/objectives');
 
@@ -12,7 +13,7 @@ const app = express();
 /**
  * Connect server to MongoDB using URI defined in keys.js
  */
-const db = require('./config/keys').mongoURI;
+const db = config.db.host;
 mongoose
   .connect(db)
   .then(() => console.log('mongoDB Connected...'))

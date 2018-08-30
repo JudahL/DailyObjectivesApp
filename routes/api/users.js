@@ -3,6 +3,8 @@ const { userRegisterPost, userSignInPost, userSignOutPost, userGet } = require('
 
 const router = express.Router();
 
+module.exports = router;
+
 /**
  * '/api/users' routes:
  */
@@ -14,8 +16,3 @@ router.post('/register', userRegisterPost);
 router.post('/signin', userSignInPost);
 
 router.post('/signout', userSignOutPost);
-
-
-
-
-module.exports = router;
