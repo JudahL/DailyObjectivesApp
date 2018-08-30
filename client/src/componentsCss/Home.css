@@ -13,7 +13,7 @@
 .Home-objectives:after {
   content: "";
   display: block;
-  height: 2em;
+  height: 5em;
 }
 
 @media screen and (max-width: 1000px) {
