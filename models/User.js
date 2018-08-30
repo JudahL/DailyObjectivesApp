@@ -32,13 +32,15 @@ UserSchema.statics.authenticate = (username, password, callback) => {
 
       // Compare the provided password with the stored and hashed password
       bcrypt.compare(password, user.password, (err, passwordsMatch) => {
-        if (passwordsMatch === true) {
-          return callback(null, user);
-        } else if (err) {
+        if (err) {
           return callback(err);
+        } else if (!passwordsMatch) {
+          // The passwords don't match and there were no errors so don't supply any parameters to the callback
+          return callback();
         }
-        // The passwords don't match and there were no errors so don't supply any parameters to the callback
-        callback();
+
+        // The password comparison has passed, supply the callback with the user and no errors
+        callback(null, user);
       });
     })
     .catch(err => callback(err));

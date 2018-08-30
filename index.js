@@ -11,35 +11,42 @@ const objectives = require('./routes/api/objectives');
 const app = express();
 
 /**
- * Connect server to MongoDB using URI defined in keys.js
+ * Connect server to MongoDB using URI defined in config
  */
-const db = config.db.host;
+const db = `${config.db.host}:${config.db.port}/${config.db.appName}`;
+
 mongoose
   .connect(db)
   .then(() => console.log('mongoDB Connected...'))
   .catch(err => console.log(err));
+
 
 /**
  * Use JSON parsing middleware for incoming requests
  */
 app.use(bodyParser.json());
 
+
 /**
- * Use sessions
+ * Setting up sessions
  * This should be defined after bodyParser
  */
+const { secret, saveUninitialized, resave } = config.session;
+
 app.use(expressSession({
-  secret: "dragons breath",
-  saveUninitialized: false,
-  resave: false,
+  secret: secret,
+  saveUninitialized: saveUninitialized,
+  resave: resave,
   store: new MongoStore({ mongooseConnection: mongoose.connection }),
 }));
+
 
 /**
  * API routes
  */
 app.use('/api/users', users);
 app.use('/api/objectives', objectives);
+
 
 /**
  * Serve static assets
@@ -50,6 +57,7 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
 }
+
 
 /**
  * Error handling middleware
@@ -62,8 +70,9 @@ app.use((err, req, res, next) => {
   return err;
 });
 
+
 /**
- * Get port from environment or use 5050 as default and listen on that port
+ * Get port from environment or use local if environment isn't set and listen on that port
  */
-const port = process.env.PORT || 5050;
+const port = config.app.productionPort || config.app.localPort;
 app.listen(port, () => console.log(`Server started on port ${port}`));

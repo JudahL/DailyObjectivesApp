@@ -1,20 +1,24 @@
 const User = require('../models/User');
 
-// Get user by session id
+/**
+ * GET
+ * Find by session id and return the users username in the response
+ */
 exports.user_get = function (req, res, next) {
   User.findById(req.session.userId)
     .exec()
     .then(user => {
-      if (user === null) {
-        return res.json('');
-      } else {
-        return res.json(user.username);
-      }
+      if (user === null) return res.json('');
+
+      res.json(user.username);
     })
     .catch(err => next(err));
 }
 
-// Register new user
+/**
+ * POST
+ * Register a new user to the database and return the users username in the response if successful
+ */
 exports.userRegister_post = function (req, res, next) {
 
   //If all fields aren't supplied then return an error
@@ -37,14 +41,18 @@ exports.userRegister_post = function (req, res, next) {
     if (err) {
       const error = new Error(err.code.toString());
       return next(error);
-    } else {
-      return res.json(user.username);
     }
+
+    return res.json(user.username);
   });
 }
 
-// Authenticate and sign in user
+/**
+ * POST
+ * Authenticate and sign in user, returning the users username in the response if successful
+ */
 exports.userSignIn_post = function (req, res, next) {
+
   // If either the username or password isn't supplied then return an error
   if (!req.body.username || !req.body.password) {
     return next(userError('FieldsMustBeFilled', 400));
@@ -52,29 +60,27 @@ exports.userSignIn_post = function (req, res, next) {
 
   // Ensure the username and password the user has entered corresponds to a user on the database
   User.authenticate(req.body.username, req.body.password, (error, user) => {
-    if (error || !user) {
-      return next(userError('WrongUsernameOrPassword', 401));
-    } else {
-      // If authentication is successful set the userId field in the session to be the MongoDB id
-      // This will be used in other routes to check whether a user is already logged in
-      req.session.userId = user._id;
+    if (error || !user) return next(userError('WrongUsernameOrPassword', 401));
 
-      return res.json(user.username);
-    }
+    // If authentication is successful set the userId field in the session to be the MongoDB id
+    // This will be used in other routes to check whether a user is already logged in
+    req.session.userId = user._id;
+    res.json(user.username);
   });
 };
 
-// Sign out user
+/**
+ * POST
+ * Sign out user, deleting the session and redirecting the user to '/' if successful
+ */
 exports.userSignOut_post = function (req, res, next) {
-  if (req.session) {
-    req.session.destroy(err => {
-      if (err) {
-        return next(err);
-      } else {
-        return res.redirect('/');
-      }
-    });
-  }
+  if (!req.session) return;
+
+  req.session.destroy(err => {
+    if (err) return next(err);
+
+    res.redirect('/');
+  });
 };
 
 

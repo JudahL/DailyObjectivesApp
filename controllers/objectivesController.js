@@ -1,7 +1,10 @@
 const ObjectivesList = require('../models/ObjectivesList');
 const User = require('../models/User');
 
-// Get users objectives list based on session id
+/**
+ * GET
+ * Find users objectives list based on session id and return the objectives in the response
+ */
 exports.objectives_get = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
@@ -12,7 +15,10 @@ exports.objectives_get = function (req, res, next) {
     .catch(err => next(err));
 };
 
-// Post new objective to users objectives list
+/**
+ * POST
+ * Add a new objective to users objectives list and return the objective in the response if successful
+ */
 exports.objectivesAddNew_post = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
@@ -31,12 +37,15 @@ exports.objectivesAddNew_post = function (req, res, next) {
 
       const newObjective = createAndReturnNewObjective(req.body);
 
-      return res.json(addObjective(userObs, newObjective));
+      return res.json(addAndReturnObjective(userObs, newObjective));
     })
     .catch(err => next(err));
 };
 
-// Update existing objective in users objectives list
+/**
+ * PUT
+ * Update an existing objective in users objectives list and return the modified objective in the response if successful
+ */
 exports.objectivesUpdateById_put = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
@@ -64,7 +73,10 @@ exports.objectivesUpdateById_put = function (req, res, next) {
     .catch(err => next(err));
 };
 
-// Delete existing objective in users objectives list
+/**
+ * DELETE
+ * Remove an existing objective in users objectives list and return the string 'success' in the response if successful
+ */
 exports.objectivesDeleteById_delete = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
@@ -144,7 +156,7 @@ function createAndReturnNewObjective(objectiveDetails) {
   }
 }
 
-function addObjective(userObjectives, newObjective) {
+function addAndReturnObjective(userObjectives, newObjective) {
   const numberOfObjectives = userObjectives.objectives.push(newObjective);
   userObjectives.save();
   return userObjectives.objectives[numberOfObjectives - 1];
