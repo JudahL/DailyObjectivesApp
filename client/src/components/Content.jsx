@@ -16,9 +16,10 @@ class Content extends Component {
 
     return (
       <div className="Content">
-        <div className="Content-top" />
-        {/* passing location to SignedIn to force updates on browser location change */}
-        {user === '' ? <SignedOut /> : <SignedIn location={location} />}
+        <div className="Content-container">
+          {/* passing location to SignedIn to force updates on browser location change */}
+          {user === '' ? <SignedOut /> : <SignedIn location={location} />}
+        </div>
       </div>
     );
   }

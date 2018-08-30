@@ -62,7 +62,8 @@
   border-radius: 2px;
 }
 
-/* Button Colours */
+
+/* Button Colours: */
 [modalbuttonrole=submit] {
   background-color: #57adfd;
 }

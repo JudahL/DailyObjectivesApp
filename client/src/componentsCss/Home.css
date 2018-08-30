@@ -10,12 +10,6 @@
   width: 68%;
 }
 
-.Home-objectives:after {
-  content: "";
-  display: block;
-  height: 5em;
-}
-
 @media screen and (max-width: 1000px) {
   .Home-status {
     width: 31%;
@@ -23,6 +17,7 @@
   }
 }
 
+/* At width of 600px and under align the Status and Objectives panels vertically instead of horizontally */
 @media screen and (max-width: 600px) {
   .Home-objectives {
     width: 100%;

@@ -11,8 +11,7 @@
   vertical-align: top;
   width: 50%;
   height: 3em;
-  /* Objectives use -1px on top margin to align themselves, using an extra 1px here to compensate*/
-  margin-bottom: 1px; 
+  margin-bottom: 1px;  /* Objectives use -1px on top margin to align themselves, using an extra 1px here to compensate */
   background-color: #f8f8f8;
 }
 

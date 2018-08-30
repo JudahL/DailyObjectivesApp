@@ -3,13 +3,11 @@
 }
 
 .Objective:hover {
-  /* Display objective over other objectives when hovering to ensure both top and bottom borders are showing*/
-  z-index: 50;
+  z-index: 50; /* Display objective over other objectives when hovering to ensure both top and bottom borders are showing */
 }
 
 .Objective-container {
-  /* Overlap the top and bottom borders of objectives so that the overall border between the two is still 1px */
-  margin-top: -1px; 
+  margin-top: -1px; /* Overlap the top and bottom borders of objectives so that the overall border between the two is still 1px */
   max-width: 100%;
   height: 5em;
   background-color: #fdfdfd;
@@ -31,8 +29,7 @@
   float: left;
   margin-left: 0.5em;
   font-weight: 500;
-  /* Centre the objective text */
-  line-height: 4em;
+  line-height: 4em; /* Centre the objective text */
   color: #333;
   cursor: pointer;
 }

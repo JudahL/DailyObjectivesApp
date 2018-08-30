@@ -1,15 +1,22 @@
+.Content:before {
+  content: "";
+  display: block;
+  height: 3em; /* Should match the height of the NavBar */
+}
+
 .Content {
   min-height: 100%;
   margin: 0 auto;
-  margin-top: -3em;
-  margin-bottom: -2.5em;
+  margin-top: -3em; /* Should match the height of the NavBar * -1 */
+  margin-bottom: -2.5em; /* Should match the base height of the Footer * -1 */
   max-width: 60em;
   font-size: 1em;
 }
 
-.Content-top {
-  height: 3em;
+.Content-container:after {
+  content: "";
   display: block;
+  height: 5em;
 }
 
 @media screen and (max-width: 1000px) {
@@ -20,6 +27,6 @@
 
 @media screen and (max-width: 500px) {
   .Content {
-    margin-bottom: -4em;
+    margin-bottom: -4em; /* Should match the footer height * -1 at width of 500px */
   }
 }
