@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const expressSession = require('express-session');
 const MongoStore = require('connect-mongo')(expressSession);
-const config = require('./config/config');
+const config = require('./config');
 const users = require('./routes/api/users');
 const objectives = require('./routes/api/objectives');
 

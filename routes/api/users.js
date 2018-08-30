@@ -1,5 +1,5 @@
 const express = require('express');
-const { userRegisterPost, userSignInPost, userSignOutPost, userGet } = require('../../controllers/usersController');
+const { userRegister_post, userSignIn_post, userSignOut_post, user_get } = require('../../controllers/usersController');
 
 const router = express.Router();
 
@@ -9,10 +9,10 @@ module.exports = router;
  * '/api/users' routes:
  */
 
-router.get('/get', userGet);
+router.get('/get', user_get);
 
-router.post('/register', userRegisterPost);
+router.post('/register', userRegister_post);
 
-router.post('/signin', userSignInPost);
+router.post('/signin', userSignIn_post);
 
-router.post('/signout', userSignOutPost);
+router.post('/signout', userSignOut_post);

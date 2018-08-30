@@ -1,96 +1,96 @@
 const ObjectivesList = require('../models/ObjectivesList');
 const User = require('../models/User');
 
-module.exports = {
-  objectives_get: function (req, res, next) {
-    if (!req.session.userId) return next(notFoundError('Session'));
+// Get users objectives list based on session id
+exports.objectives_get = function (req, res, next) {
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-    getUserObjectivesWithUserId(req.session.userId)
-      .then(objectives => {
-        return res.json(objectives);
-      })
-      .catch(err => next(err));
-  },
+  getUserObjectivesWithUserId(req.session.userId)
+    .then(objectives => {
+      return res.json(objectives);
+    })
+    .catch(err => next(err));
+};
 
+// Post new objective to users objectives list
+exports.objectivesAddNew_post = function (req, res, next) {
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-  objectivesAddNew_post: function (req, res, next) {
-    if (!req.session.userId) return next(notFoundError('Session'));
+  getUserObjectivesWithUserId(req.session.userId)
+    .then(userObjectives => {
+      if (!userObjectives) {
+        // return a new objectives list with the user's details
+        // The objectives array will be empty by default
+        return new ObjectivesList(user);
+      } else {
+        return userObjectives;
+      }
+    })
+    .then(userObs => {
+      if (!userObs) throw new notFoundError('UserObjectives');
 
-    getUserObjectivesWithUserId(req.session.userId)
-      .then(userObjectives => {
-        if (!userObjectives) {
-          // return a new objectives list with the user's details
-          // The objectives array will be empty by default
-          return new ObjectivesList(user);
+      const newObjective = createAndReturnNewObjective(req.body);
+
+      return res.json(addObjective(userObs, newObjective));
+    })
+    .catch(err => next(err));
+};
+
+// Update existing objective in users objectives list
+exports.objectivesUpdateById_put = function (req, res, next) {
+  if (!req.session.userId) return next(notFoundError('Session'));
+
+  getUserObjectivesWithUserId(req.session.userId)
+    .then(userObjectives => {
+      if (!userObjectives) throw new notFoundError('User Objectives');
+
+      const objective = userObjectives.objectives.id(req.params.id);
+
+      objective.set(req.body);
+      objective.set({ lastModifiedDate: Date.now() });
+
+      // Explicitly telling mongoose that the property lastModifiedDate has been modified
+      // as Date methods aren't hooked into the mongoose change tracking logic
+      objective.markModified('lastModifiedDate');
+
+      userObjectives.save(err => {
+        if (!err) {
+          res.json(objective);
         } else {
-          return userObjectives;
+          next(err);
         }
-      })
-      .then(userObs => {
-        if (!userObs) throw new notFoundError('UserObjectives');
+      });
+    })
+    .catch(err => next(err));
+};
 
-        const newObjective = createAndReturnNewObjective(req.body);
+// Delete existing objective in users objectives list
+exports.objectivesDeleteById_delete = function (req, res, next) {
+  if (!req.session.userId) return next(notFoundError('Session'));
 
-        return res.json(addObjective(userObs, newObjective));
-      })
-      .catch(err => next(err));
-  },
+  getUserObjectivesWithUserId(req.session.userId)
+    .then(userObjectives => {
+      if (!userObjectives) throw new notFoundError('User Objectives');
 
+      const objective = userObjectives.objectives.id(req.params.id);
 
-  objectivesUpdateById_put: function (req, res, next) {
-    if (!req.session.userId) return next(notFoundError('Session'));
-
-    getUserObjectivesWithUserId(req.session.userId)
-      .then(userObjectives => {
-        if (!userObjectives) throw new notFoundError('User Objectives');
-
-        const objective = userObjectives.objectives.id(req.params.id);
-
-        objective.set(req.body);
-        objective.set({ lastModifiedDate: Date.now() });
-
-        // Explicitly telling mongoose that the property lastModifiedDate has been modified
-        // as Date methods aren't hooked into the mongoose change tracking logic
-        objective.markModified('lastModifiedDate');
+      if (objective) {
+        objective.remove();
 
         userObjectives.save(err => {
           if (!err) {
-            res.json(objective);
+            res.send('success');
           } else {
             next(err);
           }
         });
-      })
-      .catch(err => next(err));
-  },
+      } else {
+        throw new notFoundError('Objective');
+      }
+    })
+    .catch(err => next(err));
+};
 
-
-  objectivesDeleteById_delete: function (req, res, next) {
-    if (!req.session.userId) return next(notFoundError('Session'));
-
-    getUserObjectivesWithUserId(req.session.userId)
-      .then(userObjectives => {
-        if (!userObjectives) throw new notFoundError('User Objectives');
-
-        const objective = userObjectives.objectives.id(req.params.id);
-
-        if (objective) {
-          objective.remove();
-
-          userObjectives.save(err => {
-            if (!err) {
-              res.send('success');
-            } else {
-              next(err);
-            }
-          });
-        } else {
-          throw new notFoundError('Objective');
-        }
-      })
-      .catch(err => next(err));
-  }
-}
 
 
 /**
