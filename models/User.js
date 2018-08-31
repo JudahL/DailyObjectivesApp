@@ -20,7 +20,7 @@ const UserSchema = new Schema({
  * Compares the given username and password with the user details on the database
  * If the user exists and the passwords match: authentication has been successful and the user is supplied to the callback
  */
-UserSchema.statics.authenticate = (username, password, callback) => {
+UserSchema.statics.authenticate = function (username, password, callback) {
   User.findOne({ username: username })
     .exec()
     .then(user => {
@@ -44,6 +44,19 @@ UserSchema.statics.authenticate = (username, password, callback) => {
       });
     })
     .catch(err => callback(err));
+}
+
+// Queries the database for a User with the given id and either returns the user's username or throws a 404 error
+UserSchema.statics.getUserById = function (userId) {
+  return User.findById(userId)
+    .exec()
+    .then(user => {
+      if (user !== null) {
+        return { user: user.username };
+      } else {
+        throw new handleNotFound('user');
+      }
+    });
 }
 
 /**

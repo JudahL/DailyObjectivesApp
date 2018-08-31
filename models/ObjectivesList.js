@@ -12,6 +12,15 @@ const ObjectivesListSchema = new Schema({
   objectives: [ObjectiveSchema],
 });
 
+// Queries for a users Objectives List based on the users username
+ObjectivesListSchema.statics.getUserObjectivesWithUsername = function (user) {
+  return ObjectivesList.findOne(user)
+    .exec()
+    .then(userObjectives => {
+      return { objectives: userObjectives, user: user };
+    });
+}
+
 /**
  * Handles the daily resetting of objectives.
  * 

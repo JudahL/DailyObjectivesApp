@@ -43,6 +43,7 @@ exports.userRegister_post = function (req, res, next) {
       return next(error);
     }
 
+    req.session.userId = user._id;
     return res.json(user.username);
   });
 }

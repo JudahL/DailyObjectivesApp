@@ -8,9 +8,10 @@ const User = require('../models/User');
 exports.objectives_get = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUserObjectivesWithUserId(req.session.userId)
+  User.getUserById(req.session.userId)
+    .then(user => ObjectivesList.getUserObjectivesWithUsername(user))
     .then(objectives => {
-      return res.json(objectives);
+      return res.json(objectives.objectives);
     })
     .catch(err => next(err));
 };
@@ -22,20 +23,27 @@ exports.objectives_get = function (req, res, next) {
 exports.objectivesAddNew_post = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUserObjectivesWithUserId(req.session.userId)
+  User.getUserById(req.session.userId)
+    .then(user => ObjectivesList.getUserObjectivesWithUsername(user))
     .then(userObjectives => {
-      if (!userObjectives) {
+      if (!userObjectives.objectives) {
         // return a new objectives list with the user's details
         // The objectives array will be empty by default
-        return new ObjectivesList(user);
+        return new ObjectivesList(userObjectives.user);
       } else {
-        return userObjectives;
+        return userObjectives.objectives;
       }
     })
     .then(userObs => {
       if (!userObs) throw new notFoundError('UserObjectives');
 
       const newObjective = createAndReturnNewObjective(req.body);
+
+      if (newObjective === null) {
+        const err = new Error('Incorrect details supplied');
+        err.status = 400;
+        return next(err);
+      }
 
       return res.json(addAndReturnObjective(userObs, newObjective));
     })
@@ -49,11 +57,12 @@ exports.objectivesAddNew_post = function (req, res, next) {
 exports.objectivesUpdateById_put = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUserObjectivesWithUserId(req.session.userId)
+  User.getUserById(req.session.userId)
+    .then(user => ObjectivesList.getUserObjectivesWithUsername(user))
     .then(userObjectives => {
-      if (!userObjectives) throw new notFoundError('User Objectives');
+      if (!userObjectives.objectives) throw new notFoundError('User Objectives');
 
-      const objective = userObjectives.objectives.id(req.params.id);
+      const objective = userObjectives.objectives.objectives.id(req.params.id);
 
       objective.set(req.body);
       objective.set({ lastModifiedDate: Date.now() });
@@ -62,7 +71,7 @@ exports.objectivesUpdateById_put = function (req, res, next) {
       // as Date methods aren't hooked into the mongoose change tracking logic
       objective.markModified('lastModifiedDate');
 
-      userObjectives.save(err => {
+      userObjectives.objectives.save(err => {
         if (!err) {
           res.json(objective);
         } else {
@@ -80,16 +89,17 @@ exports.objectivesUpdateById_put = function (req, res, next) {
 exports.objectivesDeleteById_delete = function (req, res, next) {
   if (!req.session.userId) return next(notFoundError('Session'));
 
-  getUserObjectivesWithUserId(req.session.userId)
+  User.getUserById(req.session.userId)
+    .then(user => ObjectivesList.getUserObjectivesWithUsername(user))
     .then(userObjectives => {
-      if (!userObjectives) throw new notFoundError('User Objectives');
+      if (!userObjectives.objectives) throw new notFoundError('User Objectives');
 
-      const objective = userObjectives.objectives.id(req.params.id);
+      const objective = userObjectives.objectives.objectives.id(req.params.id);
 
       if (objective) {
         objective.remove();
 
-        userObjectives.save(err => {
+        userObjectives.objectives.save(err => {
           if (!err) {
             res.send('success');
           } else {
@@ -110,29 +120,10 @@ exports.objectivesDeleteById_delete = function (req, res, next) {
  * All of these return a promise with the query result as a parameter
  */
 
-// Queries the database for a User with the given id and either returns the user's username or throws a 404 error
-function getUser(userId) {
-  return User.findById(userId)
-    .exec()
-    .then(user => {
-      if (user !== null) {
-        return { user: user.username };
-      } else {
-        throw new handleNotFound('user');
-      }
-    })
-}
-
-// Queries for a users Objectives List based on the users username
-function getUserObjectivesWithUsername(user) {
-  return ObjectivesList.findOne(user)
-    .exec();
-}
-
 // Queries for a users Objectives List based on the users userId
 function getUserObjectivesWithUserId(userId) {
-  return getUser(userId)
-    .then(getUserObjectivesWithUsername);
+  return User.getUserById(userId)
+    .then(ObjectivesList.getUserObjectivesWithUsername);
 }
 
 
