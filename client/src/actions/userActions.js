@@ -16,16 +16,21 @@ export function clearUserErrors() {
 }
 
 export const addUser = user => (dispatch) => {
+  dispatch(setLoadingSignIn());
   axios
     .post('/api/users/register', user)
     .then(res => dispatch({
       type: ADD_USER,
       payload: res.data,
     }))
-    .catch(error => dispatch({
-      type: USER_ERROR,
-      payload: error.response.data,
-    }));
+    .then(() => dispatch(setLoadingFalse()))
+    .catch(error => {
+      dispatch({
+        type: USER_ERROR,
+        payload: error.response.data,
+      });
+      dispatch(setLoadingFalse());
+    });
 };
 
 export const signIn = userDetails => (dispatch) => {
@@ -37,10 +42,13 @@ export const signIn = userDetails => (dispatch) => {
       payload: res.data,
     }))
     .then(() => dispatch(setLoadingFalse()))
-    .catch(error => dispatch({
-      type: USER_ERROR,
-      payload: error.response.data,
-    }));
+    .catch(error => {
+      dispatch({
+        type: USER_ERROR,
+        payload: error.response.data,
+      });
+      dispatch(setLoadingFalse());
+    });
 };
 
 export const signOut = userDetails => (dispatch) => {

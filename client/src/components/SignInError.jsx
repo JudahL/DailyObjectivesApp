@@ -7,7 +7,7 @@ export default function SignInError(props) {
   return (
     errorMessage !== ''
       ? (
-        <p className="Signin-error">
+        <p className="SignInForm-error">
           {errorMessage}
         </p>
       ) : null
