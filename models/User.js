@@ -25,8 +25,7 @@ UserSchema.statics.authenticate = function (username, password, callback) {
     .exec()
     .then(user => {
       if (!user) {
-        const err = new Error('User not found.');
-        err.status = 401;
+        const err = new Error('wrongUsername.');
         return callback(err);
       }
 
@@ -46,7 +45,7 @@ UserSchema.statics.authenticate = function (username, password, callback) {
     .catch(err => callback(err));
 }
 
-// Queries the database for a User with the given id and either returns the user's username or throws a 404 error
+// Queries the database for a User with the given id and either returns the user's username or throws an error
 UserSchema.statics.getUserById = function (userId) {
   return User.findById(userId)
     .exec()
@@ -54,7 +53,7 @@ UserSchema.statics.getUserById = function (userId) {
       if (user !== null) {
         return { user: user.username };
       } else {
-        throw new handleNotFound('user');
+        throw new Error('userNotFound');
       }
     });
 }

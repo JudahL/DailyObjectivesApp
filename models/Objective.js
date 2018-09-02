@@ -9,4 +9,15 @@ const ObjectiveSchema = new Schema({
   lastModifiedDate: Date,
 });
 
-module.exports = ObjectiveSchema;
+module.exports.createAndReturnNewObjective = function (objectiveData) {
+  const newObjective = {
+    text: objectiveData.text,
+    colour: objectiveData.colour,
+    isChecked: objectiveData.isChecked || false,
+    lastModifiedDate: Date.now(),
+  }
+
+  return newObjective;
+}
+
+module.exports.Objective = ObjectiveSchema;

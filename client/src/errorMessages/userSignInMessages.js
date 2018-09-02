@@ -5,10 +5,10 @@ import { Map } from 'immutable';
  * with a type and readable message
  */
 const errorMessages = Map({
-  11000: Map({ msg: 'Usename is already in use', type: 'username' }),
-  PasswordsDoNotMatch: Map({ msg: 'Passwords do not match', type: 'password' }),
-  FieldsMustBeFilled: Map({ msg: 'All fields must be filled', type: 'field' }),
-  WrongUsernameOrPassword: Map({ msg: 'Wrong username or password', type: 'field' }),
+  'Username already in use': Map({ msg: 'Usename is already in use', type: 'username' }),
+  'Passwords do not match': Map({ msg: 'Passwords do not match', type: 'password' }),
+  'All fields must be filled': Map({ msg: 'All fields must be filled', type: 'field' }),
+  'Wrong username or password': Map({ msg: 'Wrong username or password', type: 'field' }),
 });
 
 export default errorMessages;

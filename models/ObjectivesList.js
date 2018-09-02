@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const ObjectiveSchema = require('./Objective');
+const { Objective } = require('./Objective');
 
 const Schema = mongoose.Schema;
 
@@ -9,7 +9,7 @@ const ObjectivesListSchema = new Schema({
     type: String,
     required: true,
   },
-  objectives: [ObjectiveSchema],
+  objectives: [Objective],
 });
 
 // Queries for a users Objectives List based on the users username
@@ -17,8 +17,21 @@ ObjectivesListSchema.statics.getUserObjectivesWithUsername = function (user) {
   return ObjectivesList.findOne(user)
     .exec()
     .then(userObjectives => {
-      return { objectives: userObjectives, user: user };
+      if (!userObjectives && user) {
+        // return a new objectives list with the user's details
+        // The objectives array will be empty by default
+        return new ObjectivesList(userObjectives.user);
+      }
+
+      return userObjectives;
     });
+}
+
+// Adds a new objective to the objectives list and returns the added objective
+ObjectivesListSchema.statics.saveObjective = function (userObjectives, newObjective) {
+  const numberOfObjectives = userObjectives.objectives.push(newObjective);
+  userObjectives.save();
+  return userObjectives.objectives[numberOfObjectives - 1];
 }
 
 /**

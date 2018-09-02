@@ -14,7 +14,11 @@ const INITIAL_STATE = Map({
 
 function handleUserError(state, errorType) {
   const errorMessage = errorMessages.get(errorType);
-  return state.setIn(['user', errorMessage.get('type')], errorMessage.get('msg'));
+  if (errorMessage) {
+    return state.setIn(['user', errorMessage.get('type')], errorMessage.get('msg'));
+  }
+
+  return state;
 }
 
 function clearUserErrors(state) {

@@ -6,6 +6,7 @@ const expressSession = require('express-session');
 const MongoStore = require('connect-mongo')(expressSession);
 const config = require('./config');
 const users = require('./routes/api/users');
+const errorHandler = require('./middleware/errorHandler');
 const objectives = require('./routes/api/objectives');
 
 const app = express();
@@ -63,12 +64,7 @@ if (process.env.NODE_ENV === 'production') {
  * Error handling middleware
  * This should be the last piece of middleware to be defined
  */
-app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(err.status || 500);
-  res.json(err.message);
-  return err;
-});
+app.use(errorHandler);
 
 
 /**
