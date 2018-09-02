@@ -16,7 +16,7 @@ A simple full-stack web app for managing objectives/habits that reset on a daily
 * [Redux](https://redux.js.org/) - Frontend state management
 * [Redux-thunk](https://www.npmjs.com/package/redux-thunk) - Asynchronous dispatching for redux
 * [Immutable](https://facebook.github.io/immutable-js/) - Immutable data structures
-* [ReactRouter](https://www.npmjs.com/package/react-router) - Frontend routing for react
+* [React-router](https://www.npmjs.com/package/react-router) - Frontend routing for react
 * [Axios](https://www.npmjs.com/package/axios) - HTTP requests
 
 ### Backend
@@ -28,4 +28,4 @@ A simple full-stack web app for managing objectives/habits that reset on a daily
 
 ## Author
 
-[Judah Lucas](judahl.github.io)
+[Judah Lucas](https://judahl.github.io)
