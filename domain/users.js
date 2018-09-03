@@ -1,44 +1,39 @@
 const User = require('../models/User');
 
-exports.findUserById = function (userId) {
-  return User.findById(userId)
-    .exec()
+exports.findUserById = async function (userId) {
+  return await User.findById(userId)
 }
 
-exports.registerUser = function (userData) {
-  return new Promise(function (resolve, reject) {
-    //If all fields aren't supplied then reject with an error message
-    if (!userData.username || !userData.password || !userData.passwordConfirm) {
-      return reject('fieldsMustBeFilled');
-    }
+exports.registerUser = async function (userData) {
+  //If all fields aren't supplied then reject with an error message
+  if (!userData.username || !userData.password || !userData.passwordConfirm) {
+    throw new Error('fieldsMustBeFilled');
+  }
 
-    // Ensure the user has entered the same 'password' and 'confirm password'
-    if (userData.password !== userData.passwordConfirm) {
-      return reject('passwordsDoNotMatch');
-    }
+  // Ensure the user has entered the same 'password' and 'confirm password'
+  if (userData.password !== userData.passwordConfirm) {
+    throw new Error('passwordsDoNotMatch');
+  }
 
-    const newUser = {
-      username: userData.username,
-      password: userData.password
-    }
+  const newUser = {
+    username: userData.username,
+    password: userData.password
+  }
 
-    // Add a new user to the database
-    User.create(newUser)
-      .then(user => resolve(user))
-      .catch(err => reject(err.code.toString()));
-  });
+  // Add a new user to the database
+  const user = await User.create(newUser);
+
+  return user;
 }
 
-exports.userSignIn = function (userData) {
-  return new Promise(function (resolve, reject) {
-    // If either the username or password isn't supplied then reject with an error message
-    if (!userData.username || !userData.password) {
-      return reject('fieldsMustBeFilled');
-    }
+exports.userSignIn = async function (userData) {
+  // If either the username or password isn't supplied then reject with an error message
+  if (!userData.username || !userData.password) {
+    throw new Error('fieldsMustBeFilled');
+  }
 
-    // Ensure the username and password the user has entered corresponds to a user on the database
-    User.authenticate(userData.username, userData.password)
-      .then(user => resolve(user))
-      .catch(err => reject(err));
-  });
+  // Ensure the username and password the user has entered corresponds to a user on the database
+  const user = await User.authenticate(userData.username, userData.password)
+
+  return user;
 }

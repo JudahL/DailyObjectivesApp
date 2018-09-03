@@ -4,16 +4,16 @@ const users = require('../domain/users');
  * GET
  * Find by session id and return the users username in the response
  */
-exports.user_get = function (req, res, next) {
+exports.user_get = async function (req, res, next) {
+  try {
+    const user = await users.findUserById((req.session && req.session.userId) || null);
 
-  users.findUserById((req.session && req.session.userId) || null)
-    .then(user => {
-      if (user === null) return res.json('');
+    if (user === null) return res.json('');
 
-      res.json(user.username);
-    })
-    .catch(err => next(err));
-
+    res.json(user.username);
+  } catch (err) {
+    next(err);
+  }
 }
 
 /**

@@ -14,6 +14,11 @@ function formatError(err) {
     return new Error('An unknown error has occured');
   }
 
+  // Check if the error is a mongoError, if so use the code as an error message
+  if (err.name && err.name === 'MongoError') {
+    return new Error(err.code.toString());
+  }
+
   if (!err.message) {
     return new Error(err);
   }

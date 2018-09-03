@@ -2,106 +2,94 @@ const ObjectivesList = require('../models/ObjectivesList');
 const Objective = require('../models/Objective');
 const User = require('../models/User');
 
-exports.getObjectivesListByUserId = function (userId) {
-  return new Promise(function (resolve, reject) {
-    if (!userId) {
-      return reject('sessionNotFound');
-    }
+exports.getObjectivesListByUserId = async function (userId) {
+  if (!userId) {
+    throw new Error('sessionNotFound');
+  }
 
-    User.getUserById(userId)
-      .then(ObjectivesList.findObjectivesListWithUsername)
-      .then(userObjectives => resolve(userObjectives))
-      .catch(err => reject(err));
-  });
+  const user = await User.getUserById(userId);
+  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername(user);
+
+  return (userObjectivesList);
 };
 
-exports.addNewObjective = function (userId, objectiveData) {
-  return new Promise(function (resolve, reject) {
-    if (!userId) {
-      return reject('sessionNotFound');
-    }
+exports.addNewObjective = async function (userId, objectiveData) {
+  if (!userId) {
+    throw new Error('sessionNotFound');
+  }
 
-    //Ensure the request has provided all the required info
-    if (!objectivesData.text || !objectiveData.colour) {
-      return reject('fieldsMustBeFilled');
-    }
+  //Ensure the request has provided all the required info
+  if (!objectiveData.text || !objectiveData.colour) {
+    throw new Error('fieldsMustBeFilled');
+  }
 
-    User.getUserById(userId)
-      .then(ObjectivesList.findObjectivesListWithUsername)
-      .then(userObjectives => {
-        if (!userObjectives) {
-          throw new Error('objectivesNotFound');
-        }
+  const user = await User.getUserById(userId);
+  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername(user);
 
-        const newObjective = Objective.formatObjectiveData(objectiveData);
+  if (!userObjectivesList) {
+    throw new Error('objectivesNotFound');
+  }
 
-        return ObjectivesList.addNewObjective(userObjectives, newObjective);
-      })
-      .then(resolve)
-      .catch(err => reject(err));
-  });
+  const newObjective = Objective.formatObjectiveData(objectiveData);
+
+  return await ObjectivesList.addNewObjective(userObjectivesList, newObjective);
 }
 
-exports.updateObjective = function (userId, objectiveId, objectiveData) {
-  return new Promise(function (resolve, reject) {
-    if (!userId) {
-      return reject('sessionNotFound');
-    }
+exports.updateObjective = async function (userId, objectiveId, objectiveData) {
 
-    User.getUserById(userId)
-      .then(ObjectivesList.findObjectivesListWithUsername)
-      .then(userObjectives => {
-        if (!userObjectives) {
-          throw new Error('objectivesNotFound');
-        }
+  if (!userId) {
+    return reject('sessionNotFound');
+  }
 
-        const objective = userObjectives.objectives.id(objectiveId);
+  const user = await User.getUserById(userId);
+  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername(user);
 
-        if (!objective) {
-          throw new Error('objectiveNotFound');
-        }
+  if (!userObjectivesList) {
+    throw new Error('objectivesNotFound');
+  }
 
-        objective.set(objectiveData);
-        objective.set({ lastModifiedDate: Date.now() });
+  const objective = userObjectivesList.objectives.id(objectiveId);
 
-        // Explicitly telling mongoose that the property lastModifiedDate has been modified
-        // as Date methods aren't hooked into the mongoose change tracking logic
-        objective.markModified('lastModifiedDate');
+  if (!objective) {
+    throw new Error('objectiveNotFound');
+  }
 
-        return userObjectives.save()
-          .then(() => resolve(objective));
-      })
-      .catch(err => reject(err));
-  });
+  objective.set(objectiveData);
+  objective.set({ lastModifiedDate: Date.now() });
+
+  // Explicitly telling mongoose that the property lastModifiedDate has been modified
+  // as Date methods aren't hooked into the mongoose change tracking logic
+  objective.markModified('lastModifiedDate');
+
+  await userObjectivesList.save();
+
+  return objective;
 }
 
 /**
  * Deletes an objective with the given id
  */
-exports.deleteObjective = function (userId, objectiveId) {
-  return new Promise(function (resolve, reject) {
-    if (!userId) {
-      return reject('sessionNotFound');
-    }
+exports.deleteObjective = async function (userId, objectiveId) {
+  if (!userId) {
+    return reject('sessionNotFound');
+  }
 
-    User.getUserById(userId)
-      .then(ObjectivesList.getUserObjectivesWithUsername)
-      .then(userObjectives => {
-        if (!userObjectives) {
-          throw new Error('objectivesNotFound');
-        }
+  const user = await User.getUserById(userId);
+  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername(user);
 
-        const objective = userObjectives.objectives.id(objectiveId);
+  if (!userObjectivesList) {
+    throw new Error('objectivesNotFound');
+  }
 
-        if (!objective) {
-          throw new Error('objectiveNotFound');
-        }
+  const objective = userObjectivesList.objectives.id(objectiveId);
 
-        objective.remove();
+  if (!objective) {
+    throw new Error('objectiveNotFound');
+  }
 
-        return userObjectives.save()
-      })
-      .then(() => resolve('success'))
-      .catch(err => reject(err));
-  });
+  objective.remove();
+
+  await userObjectivesList.save();
+
+  return ('success');
 }
