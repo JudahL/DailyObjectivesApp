@@ -24,7 +24,7 @@ A simple full-stack web app for managing objectives/habits that reset on a daily
 * [Body-parser](https://www.npmjs.com/package/body-parser) - Parsing incoming http request bodies
 * [bcrypt](https://www.npmjs.com/package/bcrypt) - Encrypting passwords when saving to database
 * [Express-session](https://www.npmjs.com/package/express-session) - Session middleware for express
-* [Mongoose](https://mongoosejs.com/) - MongoDB object models
+* [Mongoose](https://mongoosejs.com/) - MongoDB object modelling
 
 ## Author
 

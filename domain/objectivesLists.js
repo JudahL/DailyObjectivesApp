@@ -9,36 +9,35 @@ exports.getObjectivesListByUserId = function (userId) {
     }
 
     User.getUserById(userId)
-      .then(user => ObjectivesList.getUserObjectivesWithUsername(user))
-      .then(userObjectives => {
-        resolve(userObjectives);
-      })
+      .then(ObjectivesList.findObjectivesListWithUsername)
+      .then(userObjectives => resolve(userObjectives))
       .catch(err => reject(err));
   });
 };
 
-exports.addNewObjective = function (userId, objectivesData) {
+exports.addNewObjective = function (userId, objectiveData) {
   return new Promise(function (resolve, reject) {
     if (!userId) {
       return reject('sessionNotFound');
     }
 
     //Ensure the request has provided all the required info
-    if (!objectivesData.text || !objectivesData.colour) {
+    if (!objectivesData.text || !objectiveData.colour) {
       return reject('fieldsMustBeFilled');
     }
 
     User.getUserById(userId)
-      .then(ObjectivesList.getUserObjectivesWithUsername)
+      .then(ObjectivesList.findObjectivesListWithUsername)
       .then(userObjectives => {
-        if (!userObjectives) return reject('objectivesNotFound');
+        if (!userObjectives) {
+          throw new Error('objectivesNotFound');
+        }
 
-        const newObjective = Objective.createAndReturnNewObjective(objectivesData);
+        const newObjective = Objective.formatObjectiveData(objectiveData);
 
-        const objective = ObjectivesList.saveObjective(userObjectives, newObjective);
-
-        resolve(objective);
+        return ObjectivesList.addNewObjective(userObjectives, newObjective);
       })
+      .then(resolve)
       .catch(err => reject(err));
   });
 }
@@ -50,14 +49,16 @@ exports.updateObjective = function (userId, objectiveId, objectiveData) {
     }
 
     User.getUserById(userId)
-      .then(ObjectivesList.getUserObjectivesWithUsername)
+      .then(ObjectivesList.findObjectivesListWithUsername)
       .then(userObjectives => {
-        if (!userObjectives) return reject('objectivesNotFound');
+        if (!userObjectives) {
+          throw new Error('objectivesNotFound');
+        }
 
         const objective = userObjectives.objectives.id(objectiveId);
 
         if (!objective) {
-          return reject('objectiveNotFound');
+          throw new Error('objectiveNotFound');
         }
 
         objective.set(objectiveData);
@@ -67,40 +68,40 @@ exports.updateObjective = function (userId, objectiveId, objectiveData) {
         // as Date methods aren't hooked into the mongoose change tracking logic
         objective.markModified('lastModifiedDate');
 
-        userObjectives.save()
-          .then(() => resolve(objective))
-          .catch(err => reject(err));
+        return userObjectives.save()
+          .then(() => resolve(objective));
       })
-      .catch(err => {
-        reject(err)
-      });
+      .catch(err => reject(err));
   });
 }
 
-
+/**
+ * Deletes an objective with the given id
+ */
 exports.deleteObjective = function (userId, objectiveId) {
   return new Promise(function (resolve, reject) {
-    if (!userId) return reject('sessionNotFound');
+    if (!userId) {
+      return reject('sessionNotFound');
+    }
 
     User.getUserById(userId)
       .then(ObjectivesList.getUserObjectivesWithUsername)
       .then(userObjectives => {
-        if (!userObjectives) return reject('objectivesNotFound');
+        if (!userObjectives) {
+          throw new Error('objectivesNotFound');
+        }
 
         const objective = userObjectives.objectives.id(objectiveId);
 
         if (!objective) {
-          return reject('objectiveNotFound');
+          throw new Error('objectiveNotFound');
         }
 
         objective.remove();
 
-        userObjectives.save()
-          .then(resolve('success'))
-          .catch(err => reject(err));
+        return userObjectives.save()
       })
-      .catch(err => {
-        reject(err)
-      });
+      .then(() => resolve('success'))
+      .catch(err => reject(err));
   });
 }

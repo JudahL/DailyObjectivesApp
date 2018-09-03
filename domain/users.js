@@ -23,13 +23,9 @@ exports.registerUser = function (userData) {
     }
 
     // Add a new user to the database
-    User.create(newUser, (err, user) => {
-      if (err) {
-        return reject(err.code.toString());
-      }
-
-      resolve(user);
-    });
+    User.create(newUser)
+      .then(user => resolve(user))
+      .catch(err => reject(err.code.toString()));
   });
 }
 
@@ -41,10 +37,8 @@ exports.userSignIn = function (userData) {
     }
 
     // Ensure the username and password the user has entered corresponds to a user on the database
-    User.authenticate(userData.username, userData.password, (error, user) => {
-      if (error || !user) return reject('wrongUsernameOrPassword');
-
-      resolve(user);
-    });
+    User.authenticate(userData.username, userData.password)
+      .then(user => resolve(user))
+      .catch(err => reject(err));
   });
 }

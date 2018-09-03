@@ -20,29 +20,25 @@ const UserSchema = new Schema({
  * Compares the given username and password with the user details on the database
  * If the user exists and the passwords match: authentication has been successful and the user is supplied to the callback
  */
-UserSchema.statics.authenticate = function (username, password, callback) {
-  User.findOne({ username: username })
-    .exec()
-    .then(user => {
-      if (!user) {
-        const err = new Error('wrongUsername.');
-        return callback(err);
-      }
-
-      // Compare the provided password with the stored and hashed password
-      bcrypt.compare(password, user.password, (err, passwordsMatch) => {
-        if (err) {
-          return callback(err);
-        } else if (!passwordsMatch) {
-          // The passwords don't match and there were no errors so don't supply any parameters to the callback
-          return callback();
+UserSchema.statics.authenticate = function (username, password) {
+  return new Promise(function (resolve, reject) {
+    User.findOne({ username: username })
+      .exec()
+      .then(user => {
+        if (!user) {
+          throw new Error('wrongUsername');
         }
 
-        // The password comparison has passed, supply the callback with the user and no errors
-        callback(null, user);
-      });
-    })
-    .catch(err => callback(err));
+        // Compare the provided password with the stored and hashed password
+        return bcrypt.compare(password, user.password)
+          .then(passwordsMatch => {
+            if (!passwordsMatch) throw new Error('wrongPassword');
+
+            resolve(user);
+          })
+      })
+      .catch(err => reject(err));
+  });
 }
 
 // Queries the database for a User with the given id and either returns the user's username or throws an error
@@ -52,9 +48,9 @@ UserSchema.statics.getUserById = function (userId) {
     .then(user => {
       if (user !== null) {
         return { user: user.username };
-      } else {
-        throw new Error('userNotFound');
       }
+
+      throw new Error('userNotFound');
     });
 }
 
@@ -64,14 +60,12 @@ UserSchema.statics.getUserById = function (userId) {
  */
 UserSchema.pre('save', function (next) {
   const user = this;
-  bcrypt.hash(user.password, 10, (err, hash) => {
-    if (err) {
-      return next(err);
-    } else {
+  bcrypt.hash(user.password, 10)
+    .then(hash => {
       user.password = hash;
       next();
-    }
-  });
+    })
+    .catch(err => next(err));
 });
 
 const User = mongoose.model('User', UserSchema);

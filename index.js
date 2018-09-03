@@ -15,7 +15,6 @@ const app = express();
  * Connect server to MongoDB using URI defined in config
  */
 const db = `${config.db.host}:${config.db.port}/${config.db.appName}`;
-
 mongoose
   .connect(db)
   .then(() => console.log('mongoDB Connected...'))
@@ -33,7 +32,6 @@ app.use(bodyParser.json());
  * This should be defined after bodyParser
  */
 const { secret, saveUninitialized, resave } = config.session;
-
 app.use(expressSession({
   secret: secret,
   saveUninitialized: saveUninitialized,
@@ -50,7 +48,7 @@ app.use('/api/objectives', objectives);
 
 
 /**
- * Serve static assets
+ * Serve static assets if in production
  */
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
@@ -61,14 +59,14 @@ if (process.env.NODE_ENV === 'production') {
 
 
 /**
- * Error handling middleware
+ * Use error handling middleware
  * This should be the last piece of middleware to be defined
  */
 app.use(errorHandler);
 
 
 /**
- * Get port from environment or use local if environment isn't set and listen on that port
+ * Get port from config and listen on that port
  */
-const port = config.app.productionPort || config.app.localPort;
+const port = config.app.port;
 app.listen(port, () => console.log(`Server started on port ${port}`));

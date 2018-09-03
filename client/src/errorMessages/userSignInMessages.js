@@ -9,6 +9,8 @@ const errorMessages = Map({
   'Passwords do not match': Map({ msg: 'Passwords do not match', type: 'password' }),
   'All fields must be filled': Map({ msg: 'All fields must be filled', type: 'field' }),
   'Wrong username or password': Map({ msg: 'Wrong username or password', type: 'field' }),
+  'Wrong username': Map({ msg: 'Wrong username or password', type: 'field' }),
+  'Wrong password': Map({ msg: 'Wrong username or password', type: 'field' }),
 });
 
 export default errorMessages;

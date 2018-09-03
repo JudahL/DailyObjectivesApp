@@ -9,7 +9,7 @@ const ObjectiveSchema = new Schema({
   lastModifiedDate: Date,
 });
 
-module.exports.createAndReturnNewObjective = function (objectiveData) {
+module.exports.formatObjectiveData = function (objectiveData) {
   const newObjective = {
     text: objectiveData.text,
     colour: objectiveData.colour,

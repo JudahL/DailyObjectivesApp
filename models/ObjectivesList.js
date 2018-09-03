@@ -13,7 +13,7 @@ const ObjectivesListSchema = new Schema({
 });
 
 // Queries for a users Objectives List based on the users username
-ObjectivesListSchema.statics.getUserObjectivesWithUsername = function (user) {
+ObjectivesListSchema.statics.findObjectivesListWithUsername = function (user) {
   return ObjectivesList.findOne(user)
     .exec()
     .then(userObjectives => {
@@ -27,11 +27,12 @@ ObjectivesListSchema.statics.getUserObjectivesWithUsername = function (user) {
     });
 }
 
-// Adds a new objective to the objectives list and returns the added objective
-ObjectivesListSchema.statics.saveObjective = function (userObjectives, newObjective) {
+// Adds a new objective to the objectives list and returns a promise with the added objective as a parameter to the resolve function if successful
+ObjectivesListSchema.statics.addNewObjective = function (userObjectives, newObjective) {
   const numberOfObjectives = userObjectives.objectives.push(newObjective);
-  userObjectives.save();
-  return userObjectives.objectives[numberOfObjectives - 1];
+
+  return userObjectives.save()
+    .then(() => userObjectives.objectives[numberOfObjectives - 1]);
 }
 
 /**

@@ -7,9 +7,7 @@ const objectivesLists = require('../domain/objectivesLists');
 exports.objectives_get = function (req, res, next) {
 
   objectivesLists.getObjectivesListByUserId((req.session && req.session.userId) || null)
-    .then(objectives => {
-      res.json(objectives);
-    })
+    .then(objectives => res.json(objectives))
     .catch(err => next(err));
 
 };
@@ -21,9 +19,7 @@ exports.objectives_get = function (req, res, next) {
 exports.objectivesAddNew_post = function (req, res, next) {
 
   objectivesLists.addNewObjective((req.session && req.session.userId) || null, req.body)
-    .then(objective => {
-      res.json(objective);
-    })
+    .then(objective => res.json(objective))
     .catch(err => next(err));
 
 };
@@ -35,9 +31,7 @@ exports.objectivesAddNew_post = function (req, res, next) {
 exports.objectivesUpdateById_put = function (req, res, next) {
 
   objectivesLists.updateObjective((req.session && req.session.userId) || null, req.params.id, req.body)
-    .then(objective => {
-      res.json(objective);
-    })
+    .then(objective => res.json(objective))
     .catch(err => next(err));
 
 };
@@ -49,9 +43,7 @@ exports.objectivesUpdateById_put = function (req, res, next) {
 exports.objectivesDeleteById_delete = function (req, res, next) {
 
   objectivesLists.deleteObjective((req.session && req.session.userId) || null, req.params.id)
-    .then(message => {
-      res.send(message);
-    })
+    .then(result => res.send(result))
     .catch(err => next(err));
 
 };
