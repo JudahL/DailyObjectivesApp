@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 const localConfig = {
   app: {
     port: 5050,
+    resetObjectivesHour: 4,
   },
   db: {
     host: `mongodb://${dbuser && dbuser.username}:${dbuser && dbuser.password}@ds235251.mlab.com`,
@@ -21,6 +22,7 @@ const localConfig = {
 const productionConfig = {
   app: {
     port: process.env.PORT,
+    resetObjectivesHour: process.env.RESET_HOUR,
   },
   db: {
     host: `mongodb://${process.env.MONGO_USER_USERNAME}:${process.env.MONGO_USER_PASSWORD}@ds235251.mlab.com`,
@@ -28,7 +30,7 @@ const productionConfig = {
     appName: 'objectives_app',
   },
   session: {
-    secret: "dragon's breath",
+    secret: process.env.SESSION_SECRET,
     saveUninitialized: false,
     resave: false,
   }

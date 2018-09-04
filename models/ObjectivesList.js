@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { app: { resetObjectivesHour } } = require('../config');
 const { Objective } = require('./Objective');
 
 const Schema = mongoose.Schema;
@@ -46,10 +47,10 @@ ObjectivesListSchema.post('findOne', result => {
 
   //Set up the current days reset point
   var currentDate = new Date();
-  if (currentDate.getHours() < 4) {
+  if (currentDate.getHours() < resetObjectivesHour) {
     currentDate.setDate(currentDate.getDate() - 1);
   }
-  currentDate.setHours(4, 0, 0);
+  currentDate.setHours(resetObjectivesHour, 0, 0);
 
   //Check each objective to see if it was last modified before the reset point
   //If it was then reset the isChecked property
