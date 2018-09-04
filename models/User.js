@@ -37,17 +37,6 @@ UserSchema.statics.authenticate = async function (username, password) {
   return user;
 }
 
-// Queries the database for a User with the given id and either returns the user's username or throws an error
-UserSchema.statics.getUserById = async function (userId) {
-  const user = await User.findById(userId);
-
-  if (user === null) {
-    throw new Error('userNotFound');
-  }
-
-  return { user: user.username };
-}
-
 /**
  * Hash password using bcrypt before saving to MongoDB
  * Important to use standard function syntax as parameter instead of arrow function due to lexical this

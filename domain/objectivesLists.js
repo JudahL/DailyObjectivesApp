@@ -4,6 +4,7 @@ const User = require('../models/User');
 
 /**
  * Returns the users list of objectives based on the given users id
+ * @param {number} userId - The id of the user whose objectives should be searched for
  */
 exports.getObjectivesListByUserId = async function (userId) {
   const userObjectivesList = await GetUsersObjectivesListById(userId);
@@ -13,6 +14,8 @@ exports.getObjectivesListByUserId = async function (userId) {
 
 /**
  * Adds a new objective to the users list of objectives with the provided objective data
+ * @param {number} userId - The id of the user who is adding the objective
+ * @param {Object} objectiveData - The data with which to build the new objective
  */
 exports.addNewObjective = async function (userId, objectiveData) {
 
@@ -34,6 +37,9 @@ exports.addNewObjective = async function (userId, objectiveData) {
 
 /**
  * Updates an objective with the provided objective data
+ * @param {number} userId - The id of the user who is updating an objective
+ * @param {number} objectiveId - The id of the objective to update
+ * @param {Object} objectiveData - The updated data with which to update the objective with
  */
 exports.updateObjective = async function (userId, objectiveId, objectiveData) {
 
@@ -59,6 +65,8 @@ exports.updateObjective = async function (userId, objectiveId, objectiveData) {
 
 /**
  * Deletes an objective with the given id
+ * @param {number} userId - The id of the user who is deleting an objective
+ * @param {number} objectiveId - The id of the objective to remove
  */
 exports.deleteObjective = async function (userId, objectiveId) {
 
@@ -77,18 +85,31 @@ exports.deleteObjective = async function (userId, objectiveId) {
   return ('success');
 }
 
-
+/**
+ * Searchs for a users objectives list and returns it if successful
+ * @param {number} userId - The id of the user whose objectives should be returned
+ */
 async function GetUsersObjectivesListById(userId) {
   if (!userId) {
-    throw new Error('sessionNotFound');
+    throw new Error('userNotSignedIn');
   }
 
-  const user = await User.getUserById(userId);
-  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername(user);
+  const user = await User.findUserById(userId);
+
+  if (!user) {
+    throw new Error('userNotFound');
+  }
+
+  const userObjectivesList = await ObjectivesList.findObjectivesListWithUsername({ username: user.username });
 
   return userObjectivesList;
 }
 
+/**
+ * Searchs for an objective within a given objectives list and returns it if successful
+ * @param {Object} userObjectivesList - The objectives list to search
+ * @param {number} objectiveId - The id of the objective to return
+ */
 function GetObjectiveInObjectivesList(userObjectivesList, objectiveId) {
   const objective = userObjectivesList.objectives.id(objectiveId);
 
